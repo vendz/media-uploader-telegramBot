@@ -8,10 +8,10 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 # Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+
 )
 
 logger = logging.getLogger(__name__)
-
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
@@ -26,6 +26,12 @@ def help_command(update: Update, _: CallbackContext) -> None:
     update.message.reply_text("/start : to start the bot")
     update.message.reply_text("/donate : to donate to the developer")
     update.message.reply_text("or just send me an image/video to make a permanent link from it")
+
+
+def donate_command(update: Update, _: CallbackContext) -> None:
+    """Send a message when the command /donate is issued."""
+    update.message.reply_text(constants.donate_text)
+
 
 
 def upload_image(update: Update, context: CallbackContext) -> None:
@@ -89,7 +95,7 @@ def button(update: Update, _: CallbackContext) -> None:
 def main() -> None:
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
-    updater = Updater(secrets.BOT_TOKEN)
+    updater = Updater(os.getenv('BOT_TOKEN'))
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
@@ -97,7 +103,7 @@ def main() -> None:
     # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
-    updater.dispatcher.add_handler(CallbackQueryHandler(button))
+    dispatcher.add_handler(CommandHandler("donate", donate_command))
 
     # on non command i.e message - echo the message on Telegram
     dispatcher.add_handler(MessageHandler(Filters.video & ~Filters.command, upload_video))
